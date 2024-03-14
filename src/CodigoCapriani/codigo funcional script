@@ -1,0 +1,64 @@
+function doGet() {
+    return HtmlService.createHtmlOutputFromFile('formulario');
+}
+
+function processForm(formData) {
+    // Obtener la hoja de cálculo activa
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName('Respuestas'); // Reemplaza con el nombre de tu hoja
+
+    // Verificar si la hoja de cálculo tiene encabezados, si no, agregarlos
+    if (sheet.getLastRow() == 0) {
+        sheet.appendRow(["Nombre", "Documento", "Apartamento", "Torre", "Fecha y Hora", "Firma"]);
+    }
+
+    // Obtener los datos de la hoja de cálculo
+    var data = sheet.getDataRange().getValues();
+
+    // Formatear la fecha y la hora del formulario
+    var formattedDateTime = Utilities.formatDate(new Date(formData.fechaHora), "America/Bogota", "yyyy-MM-dd HH:mm:ss");
+
+    // Crear un objeto para almacenar la información sobre la comparación
+    var comparisonResult = {
+        submittedDateTime: formattedDateTime,
+        entries: []
+    };
+
+    // Recorrer las filas de la hoja de cálculo
+    for (var i = 0; i < data.length; i++) {
+        var row = data[i];
+
+        // Verificar si la fila tiene valores
+        if (row.some(function (value) { return value !== undefined && value !== null && value !== ''; })) {
+            // Almacenar información sobre la comparación en el objeto
+            comparisonResult.entries.push({
+                row: i + 1,
+                dateTime: Utilities.formatDate(new Date(row[4]), "America/Bogota", "yyyy-MM-dd HH:mm:ss") // Ajusta las columnas según tu estructura
+            });
+        }
+    }
+
+    // Filtrar las entradas que tengan la misma fecha y hora
+    var sameDateTimeEntries = comparisonResult.entries.filter(function(entry) {
+        return entry.dateTime === formattedDateTime;
+    });
+
+    // Verificar si hay espacio disponible
+    if (sameDateTimeEntries.length >= 3) {
+        // Enviar un mensaje indicando que la fecha y hora ya tienen cupo completo
+        return 'Lo siento, esa fecha y hora ya tienen cupo completo. Por favor, elige otro horario. Información de comparación: ' + JSON.stringify(comparisonResult);
+    } else {
+        // Si hay espacio disponible, agregar los datos a la hoja de cálculo
+        sheet.appendRow([
+            formData.nombre,
+            formData.documento,
+            formData.apartamento,
+            formData.torre,
+            formattedDateTime,
+            formData.firma
+        ]);
+
+        // Devolver un mensaje de éxito junto con la información de la comparación
+        return 'Formulario enviado con éxito. Información de comparación: ' + JSON.stringify(comparisonResult);
+    }
+}

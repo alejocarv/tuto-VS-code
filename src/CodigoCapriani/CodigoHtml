@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <base target="_top">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.10.0/jquery.timepicker.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css">
+    <style>
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        input {
+            margin-bottom: 12px;
+        }
+
+        .success-message {
+            color: green;
+            font-weight: bold;
+        }
+
+        .error-message {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.10.0/jquery.timepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js"></script>
+</head>
+
+<body>
+    <form id="myForm">
+        <label for="nombre">Nombre del Usuario:</label>
+        <input type="text" id="nombre" name="nombre" required>
+
+        <label for="documento">Documento Identidad:</label>
+        <input type="text" id="documento" name="documento" required>
+
+        <label for="apartamento">Apartamento:</label>
+        <input type="text" id="apartamento" name="apartamento" required>
+
+        <label for="torre">Torre:</label>
+        <input type="text" id="torre" name="torre" required>
+
+        <label for="fecha">Fecha y Hora de Ingreso:</label>
+        <input type="text" id="fechaHora" name="fechaHora" required readonly>
+
+        <label for="firma">Firma:</label>
+        <input type="text" id="firma" name="firma" required>
+
+        <input type="button" value="Enviar" onclick="enviarFormulario()">
+        <div id="mensaje" class="success-message"></div>
+    </form>
+
+    <script>
+        $(function () {
+            var today = new Date();
+            var tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+
+            $("#fechaHora").datetimepicker({
+                minDate: today,
+                maxDate: tomorrow,
+                format: "Y-m-d H:i",
+                step: 60
+            });
+        });
+
+        function enviarFormulario() {
+            var formData = {
+                nombre: $("#nombre").val(),
+                documento: $("#documento").val(),
+                apartamento: $("#apartamento").val(),
+                torre: $("#torre").val(),
+                fechaHora: $("#fechaHora").val(),
+                firma: $("#firma").val()
+            };
+
+            google.script.run.withSuccessHandler(function (response) {
+                mostrarMensaje(response);
+            }).processForm(formData);
+        }
+
+        function mostrarMensaje(message) {
+            var mensajeDiv = document.getElementById("mensaje");
+            mensajeDiv.innerHTML = message;
+
+            // Limpiar el formulario si el mensaje es de éxito
+            if (message.indexOf("éxito") !== -1) {
+                document.getElementById("myForm").reset();
+            }
+        }
+    </script>
+</body>
+
+</html>
+
+
+
+
+
+codigo html con firma 
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <base target="_top">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.10.0/jquery.timepicker.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.10.0/jquery.timepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/1.5.3/signature_pad.min.js"></script>
+    <style>
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        input {
+            margin-bottom: 12px;
+        }
+
+        .success-message {
+            color: green;
+            font-weight: bold;
+        }
+
+        .error-message {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <form id="myForm">
+        <label for="nombre">Nombre del Usuario:</label>
+        <input type="text" id="nombre" name="nombre" required>
+
+        <label for="documento">Documento Identidad:</label>
+        <input type="text" id="documento" name="documento" required>
+
+        <label for="apartamento">Apartamento:</label>
+        <input type="text" id="apartamento" name="apartamento" required>
+
+        <label for="torre">Torre:</label>
+        <input type="text" id="torre" name="torre" required>
+
+        <label for="fecha">Fecha y Hora de Ingreso:</label>
+        <input type="text" id="fechaHora" name="fechaHora" required readonly>
+
+        <label for="firma">Firma:</label>
+        <div>
+            <canvas id="firmaCanvas" width="400" height="200" style="border: 1px solid #ccc"></canvas>
+            <button type="button" onclick="limpiarFirma()">Limpiar Firma</button>
+        </div>
+        <input type="hidden" id="firma" name="firma" required>
+
+        <input type="button" value="Enviar" onclick="enviarFormulario()">
+        <div id="mensaje" class="success-message"></div>
+    </form>
+
+    <script>
+        $(function () {
+            var today = new Date();
+            var tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+
+            $("#fechaHora").datetimepicker({
+                minDate: today,
+                maxDate: tomorrow,
+                format: "Y-m-d H:i",
+                step: 60
+            });
+        });
+
+        var canvas = document.getElementById('firmaCanvas');
+        var signaturePad = new SignaturePad(canvas);
+
+        function limpiarFirma() {
+            signaturePad.clear();
+        }
+
+        function enviarFormulario() {
+            var firmaDataUrl = signaturePad.toDataURL();
+            $("#firma").val(firmaDataUrl);
+
+            var formData = {
+                nombre: $("#nombre").val(),
+                documento: $("#documento").val(),
+                apartamento: $("#apartamento").val(),
+                torre: $("#torre").val(),
+                fechaHora: $("#fechaHora").val(),
+                firma: firmaDataUrl
+            };
+
+            google.script.run.withSuccessHandler(function (response) {
+                mostrarMensaje(response);
+            }).processForm(formData);
+        }
+
+        function mostrarMensaje(message) {
+            var mensajeDiv = document.getElementById("mensaje");
+            mensajeDiv.innerHTML = message;
+
+            if (message.indexOf("éxito") !== -1) {
+                document.getElementById("myForm").reset();
+                signaturePad.clear(); // Limpiar la firma después de enviar el formulario con éxito
+            }
+        }
+    </script>
+</body>
+
+</html>
+
+
